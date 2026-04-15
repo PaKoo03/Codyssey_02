@@ -94,6 +94,17 @@ class QuizGame:
         deleted = self.quizzes.pop(index)
         print(f"\n✅ 퀴즈 '{deleted.question}'가 삭제되었습니다.")
 
+    def get_score_info(self) -> str:
+        info = f"\n🏆 최고 점수: {self.best_score}점\n"
+        info += "-" * 30 + "\n"
+        if not self.history:
+            info += "아직 플레이 기록이 없습니다."
+        else:
+            info += "📜 최근 플레이 기록 (최대 5개)\n"
+            for record in reversed(self.history[-5:]):
+                info += f"[{record['date']}] {record['played']}문제 풀이 / 점수: {record['score']}점\n"
+        return info
+
     def get_quiz_list(self) -> str:
         if not self.quizzes:
             return "등록된 퀴즈가 없습니다."

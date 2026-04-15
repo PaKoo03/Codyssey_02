@@ -78,7 +78,7 @@ def main():
                         game.delete_quiz(del_idx - 1)
                         
             elif choice == 5:
-                pass
+                print(game.get_score_info())
                 
             elif choice == 0:
                 print("\n게임을 종료합니다. 플레이해주셔서 감사합니다!")
