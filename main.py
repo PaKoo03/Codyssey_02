@@ -2,10 +2,6 @@ import sys
 from game import QuizGame
 
 def get_valid_int(prompt: str, min_val: int = None, max_val: int = None) -> int:
-    """
-    사용자로부터 안전하게 정수를 입력받는 함수입니다.
-    과제 요구사항인 빈 입력, 공백 제거, 형변환 실패, 허용 범위 검사를 모두 수행합니다.
-    """
     while True:
         user_input = input(prompt).strip()
         
@@ -29,7 +25,6 @@ def get_valid_int(prompt: str, min_val: int = None, max_val: int = None) -> int:
             print("[안내] 숫자로만 입력해주세요.")
 
 def main():
-    # 게임 인스턴스 생성
     game = QuizGame()
     
     try:
@@ -51,23 +46,37 @@ def main():
                 if not game.quizzes:
                     print("\n[안내] 등록된 퀴즈가 없습니다.")
                     continue
-                # 풀이할 문제 수 선택
                 max_q = len(game.quizzes)
                 num_q = get_valid_int(f"\n몇 문제를 푸시겠습니까? (1~{max_q}): ", 1, max_q)
                 game.play_game(num_q)
                 
             elif choice == 2:
-                print("\n[안내] 아직 구현되지 않은 기능입니다.")
+                print("\n--- 새로운 퀴즈 추가 ---")
+                question = input("문제를 입력하세요: ").strip()
+                if not question:
+                    print("[안내] 문제가 비어있어 추가를 취소합니다.")
+                    continue
+                
+                choices = []
+                for i in range(1, 5):
+                    choice_text = input(f"선택지 {i}을(를) 입력하세요: ").strip()
+                    choices.append(choice_text if choice_text else f"선택지 {i}")
+                
+                answer = get_valid_int("정답 번호를 입력하세요 (1~4): ", 1, 4)
+                hint = input("힌트를 입력하세요 (없으면 그냥 Enter): ").strip()
+                
+                game.add_quiz(question, choices, answer, hint)
+                
             elif choice == 3:
-                print("\n[안내] 아직 구현되지 않은 기능입니다.")
+                pass
             elif choice == 4:
-                print("\n[안내] 아직 구현되지 않은 기능입니다.")
+                pass
             elif choice == 5:
-                print("\n[안내] 아직 구현되지 않은 기능입니다.")
+                pass
                 
             elif choice == 0:
                 print("\n게임을 종료합니다. 플레이해주셔서 감사합니다!")
-                return 0 
+                sys.exit(0)
 
     except (KeyboardInterrupt, EOFError):
         print("\n\n[안내] 프로그램이 강제 종료 신호를 받았습니다.")

@@ -3,23 +3,13 @@ from datetime import datetime
 from quiz import Quiz
 
 class QuizGame:
-    """
-    퀴즈 게임의 전체 상태(퀴즈 목록, 최고 점수, 기록)를 관리하고
-    비즈니스 로직을 담당하는 클래스입니다.
-    """
-
     def __init__(self):
         self.quizzes: list[Quiz] = []
         self.best_score: int = 0
         self.history: list[dict] = []
-        
-        # 파일 로드 기능이 아직 없으므로, 인스턴스 생성 시 기본 데이터를 바로 세팅합니다.
         self._init_default_data()
 
     def _init_default_data(self):
-        """
-        기본으로 제공할 파이썬/Git 기초 퀴즈 5개입니다.
-        """
         self.best_score = 0
         self.history = []
         self.quizzes = [
@@ -37,18 +27,14 @@ class QuizGame:
         ]
 
     def play_game(self, num_questions: int):
-        """
-        지정된 문제 수만큼 퀴즈를 출제하고 점수를 계산합니다. (보너스: 랜덤 출제, 힌트 감점)
-        """
         if not self.quizzes:
             print("\n[안내] 등록된 퀴즈가 없습니다. 퀴즈를 먼저 추가해주세요.")
             return
 
-        # 보너스: 퀴즈 랜덤 섞기
         play_list = random.sample(self.quizzes, min(num_questions, len(self.quizzes)))
         
         score = 0
-        total_possible_score = len(play_list) * 10 # 문제당 10점
+        total_possible_score = len(play_list) * 10
 
         print(f"\n=== 퀴즈 게임 시작! (총 {len(play_list)}문제) ===")
         print("💡 힌트를 보려면 'h'를 입력하세요. (힌트 사용 시 해당 문제 점수 반감)")
@@ -60,18 +46,15 @@ class QuizGame:
             while True:
                 user_input = input("\n정답을 입력하세요 (1~4, 힌트: h): ").strip().lower()
                 
-                # 빈 입력 처리
                 if not user_input:
                     print("입력값이 없습니다. 다시 입력해주세요.")
                     continue
 
-                # 힌트 처리
                 if user_input == 'h':
                     print(quiz.get_hint())
-                    earned_points = 5 # 힌트 사용 시 점수 반감
+                    earned_points = 5
                     continue
                 
-                # 정답 확인
                 try:
                     user_ans = int(user_input)
                     if not (1 <= user_ans <= 4):
@@ -83,12 +66,11 @@ class QuizGame:
                         score += earned_points
                     else:
                         print(f"❌ 오답입니다. 정답은 {quiz.answer}번입니다.")
-                    break # 문제 넘어가기
+                    break
                     
                 except ValueError:
                     print("숫자 또는 'h'만 입력해주세요.")
 
-        # 결과 처리 및 저장
         print(f"\n=== 게임 종료 ===")
         print(f"최종 점수: {score} / {total_possible_score}")
         
@@ -96,10 +78,14 @@ class QuizGame:
             print(f"🎉 신기록 달성! (기존 최고 점수: {self.best_score})")
             self.best_score = score
             
-        # 기록저장.
         record = {
             "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "played": len(play_list),
             "score": score
         }
         self.history.append(record)
+
+    def add_quiz(self, question: str, choices: list[str], answer: int, hint: str):
+        new_quiz = Quiz(question, choices, answer, hint)
+        self.quizzes.append(new_quiz)
+        print("\n✅ 퀴즈가 성공적으로 추가되었습니다!")
