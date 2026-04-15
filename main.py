@@ -2,16 +2,24 @@ import sys
 from game import QuizGame
 
 def get_valid_int(prompt: str, min_val: int = None, max_val: int = None) -> int:
+    """
+    사용자로부터 안전하게 정수를 입력받는 공통 헬퍼 함수입니다.
+    과제 요구사항인 빈 입력, 공백 제거, 형변환 실패, 허용 범위 검사를 모두 수행합니다.
+    """
     while True:
+        # 1. 입력 앞뒤 공백 제거
         user_input = input(prompt).strip()
         
+        # 2. 빈 입력(그냥 Enter) 처리
         if not user_input:
             print("[안내] 입력값이 없습니다. 다시 입력해주세요.")
             continue
             
         try:
+            # 3. 숫자 변환 시도
             value = int(user_input)
             
+            # 4. 허용 범위 밖 숫자 검사
             if min_val is not None and value < min_val:
                 print(f"[안내] {min_val} 이상의 숫자를 입력해주세요.")
                 continue
@@ -22,11 +30,14 @@ def get_valid_int(prompt: str, min_val: int = None, max_val: int = None) -> int:
             return value
             
         except ValueError:
+            # 숫자 변환 실패 (예: abc)
             print("[안내] 숫자로만 입력해주세요.")
 
 def main():
+    # 게임 인스턴스 생성 (자동으로 state.json 로드)
     game = QuizGame()
     
+    # 프로그램 강제 종료(Ctrl+C 등)를 대비한 예외 처리 블록
     try:
         while True:
             print("\n" + "="*30)
@@ -46,6 +57,7 @@ def main():
                 if not game.quizzes:
                     print("\n[안내] 등록된 퀴즈가 없습니다.")
                     continue
+                # 보너스: 풀이할 문제 수 선택
                 max_q = len(game.quizzes)
                 num_q = get_valid_int(f"\n몇 문제를 푸시겠습니까? (1~{max_q}): ", 1, max_q)
                 game.play_game(num_q)
@@ -60,7 +72,7 @@ def main():
                 choices = []
                 for i in range(1, 5):
                     choice_text = input(f"선택지 {i}을(를) 입력하세요: ").strip()
-                    choices.append(choice_text if choice_text else f"선택지 {i}")
+                    choices.append(choice_text if choice_text else f"선택지 {i}") # 빈 칸 방지
                 
                 answer = get_valid_int("정답 번호를 입력하세요 (1~4): ", 1, 4)
                 hint = input("힌트를 입력하세요 (없으면 그냥 Enter): ").strip()
@@ -75,18 +87,21 @@ def main():
                 if game.quizzes:
                     del_idx = get_valid_int("삭제할 퀴즈 번호를 입력하세요 (취소: 0): ", 0, len(game.quizzes))
                     if del_idx != 0:
-                        game.delete_quiz(del_idx - 1)
+                        game.delete_quiz(del_idx - 1) # 사용자 입력(1-based)을 인덱스(0-based)로 변환
                         
             elif choice == 5:
                 print(game.get_score_info())
                 
             elif choice == 0:
                 print("\n게임을 종료합니다. 플레이해주셔서 감사합니다!")
-                sys.exit(0)
+               # game.save_data() 중복 의심
+                sys.exit(0) # 정상 종료
 
+    # KeyboardInterrupt (Ctrl+C) 또는 EOFError (Ctrl+D / Ctrl+Z) 발생 시 안전하게 종료
     except (KeyboardInterrupt, EOFError):
         print("\n\n[안내] 프로그램이 강제 종료 신호를 받았습니다.")
-        print("안전하게 종료합니다...")
+        print("현재까지의 진행 상황을 안전하게 저장한 후 종료합니다...")
+        game.save_data() # 종료 전 필수 데이터 저장
         sys.exit(1)
 
 if __name__ == "__main__":
