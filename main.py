@@ -68,9 +68,15 @@ def main():
                 game.add_quiz(question, choices, answer, hint)
                 
             elif choice == 3:
-                pass
+                print(game.get_quiz_list())
+                
             elif choice == 4:
-                pass
+                print(game.get_quiz_list())
+                if game.quizzes:
+                    del_idx = get_valid_int("삭제할 퀴즈 번호를 입력하세요 (취소: 0): ", 0, len(game.quizzes))
+                    if del_idx != 0:
+                        game.delete_quiz(del_idx - 1)
+                        
             elif choice == 5:
                 pass
                 

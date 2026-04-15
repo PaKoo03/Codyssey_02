@@ -89,3 +89,16 @@ class QuizGame:
         new_quiz = Quiz(question, choices, answer, hint)
         self.quizzes.append(new_quiz)
         print("\n✅ 퀴즈가 성공적으로 추가되었습니다!")
+
+    def delete_quiz(self, index: int):
+        deleted = self.quizzes.pop(index)
+        print(f"\n✅ 퀴즈 '{deleted.question}'가 삭제되었습니다.")
+
+    def get_quiz_list(self) -> str:
+        if not self.quizzes:
+            return "등록된 퀴즈가 없습니다."
+        
+        result = "\n=== 등록된 퀴즈 목록 ===\n"
+        for i, quiz in enumerate(self.quizzes):
+            result += f"{i + 1}. {quiz.question} (정답: {quiz.answer}번)\n"
+        return result
