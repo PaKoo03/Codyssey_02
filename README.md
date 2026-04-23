@@ -206,3 +206,35 @@ git merge feature/delete-quiz
 ```bash
 git push origin main
 ```
+
+## 8. 주요 클래스 및 함수 참조 구조 (Call Graph)
+본 프로젝트는 역할별로 3개의 파일(`main.py`, `game.py`, `quiz.py`)로 책임을 분리하여 설계되었습니다.
+
+### 📍 `main.py` (프로그램 진입점 및 UI 제어)
+사용자와의 상호작용을 담당하며, 입력값을 검증한 뒤 `QuizGame` 객체에 명령을 위임합니다.
+* **`main()`**
+  * `QuizGame()` 객체를 생성하여 게임을 초기화합니다.
+  * 입력 검증을 위해 내부 헬퍼 함수인 `get_valid_int()`를 지속적으로 호출합니다.
+  * 사용자의 메뉴 선택에 따라 `QuizGame` 객체의 주요 메서드(`play_game`, `add_quiz`, `get_quiz_list`, `delete_quiz`, `get_score_info`, `save_data`)를 호출하여 실행 흐름을 제어합니다.
+* **`get_valid_int()`**
+  * 외부 의존성 없이 독립적으로 동작하며, 입력 공백 제거, 형변환, 예외 처리(빈 입력, 문자 입력, 범위 이탈)를 수행하여 안전한 정수만 반환합니다.
+
+### 🎮 `game.py` - `QuizGame` 클래스 (비즈니스 로직 및 상태 관리)
+게임의 전반적인 상태(최고 점수, 퀴즈 목록)를 관리하고 파일 입출력을 통제합니다.
+* **`__init__()`**
+  * 객체 생성 시 내부적으로 `load_data()`를 즉시 참조하여 기존 데이터를 불러옵니다.
+* **`load_data()`**
+  * `state.json`을 읽고, `quiz.py`의 `Quiz.from_dict()` 팩토리 메서드를 참조하여 JSON 데이터를 `Quiz` 객체 리스트로 역직렬화합니다. 
+  * 파일이 없거나 비어있으면 내부 메서드인 `_init_default_data()`를 호출합니다.
+* **`_init_default_data()`, `add_quiz()`, `delete_quiz()`**
+  * 데이터에 변동이 생기는 이 3개의 메서드는 작업 완료 직후 반드시 내부 메서드인 `save_data()`를 참조하여 변경 사항을 파일에 즉각 동기화합니다.
+* **`save_data()`**
+  * `quiz.py`의 `Quiz.to_dict()` 메서드를 참조하여 `Quiz` 객체들을 JSON 형태로 직렬화하여 저장합니다.
+* **`play_game()`**
+  * 출제 과정에서 개별 퀴즈의 정보를 다루기 위해 `quiz.py`의 `display()`, `get_hint()`, `check_answer()` 메서드를 차례대로 참조합니다. 게임 종료 시 기록 갱신을 위해 `save_data()`를 호출합니다.
+
+### 📝 `quiz.py` - `Quiz` 클래스 (데이터 모델)
+개별 퀴즈의 속성과 행위를 정의한 순수 데이터 모델로, 다른 파일의 함수를 참조하지 않고 수동적으로 호출됩니다.
+* **`check_answer(user_answer)`**: 입력받은 답과 인스턴스의 정답을 비교하여 Bool 값을 반환합니다.
+* **`display()`, `get_hint()`**: 화면 출력용 포맷팅을 담당합니다.
+* **`to_dict()`, `from_dict()`**: 파일 입출력을 돕는 직렬화/역직렬화 전용 메서드입니다.
